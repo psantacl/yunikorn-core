@@ -1392,9 +1392,9 @@ func (sq *Queue) TryAllocate(iterator func() NodeIterator, fullIterator func() N
 			}
 
 			//psc
-			log.Log(log.SchedQueue).Info("PSC: checking application for potential allocation on queue",
-				zap.String("appID", app.ApplicationID),
-				zap.String("queueName", sq.QueuePath))
+			// log.Log(log.SchedQueue).Info("PSC: checking application for potential allocation on queue",
+			// 	zap.String("appID", app.ApplicationID),
+			// 	zap.String("queueName", sq.QueuePath))
 
 			alloc := app.tryAllocate(headRoom, allowPreemption, preemptionDelay, &preemptAttemptsRemaining, iterator, fullIterator, getnode)
 			if alloc != nil {
@@ -1412,7 +1412,16 @@ func (sq *Queue) TryAllocate(iterator func() NodeIterator, fullIterator func() N
 		}
 	} else {
 		// process the child queues (filters out queues without pending requests)
-		for _, child := range sq.sortQueues() {
+		sortedQueues := sq.sortQueues()
+		var queueNames = make([]string, len(sortedQueues))
+
+		for _, child := range sortedQueues {
+			queueNames = append(queueNames, child.QueuePath)
+		}
+		log.Log(log.SchedQueue).Info("PSC: sorted queues: ",
+			zap.Strings("sortedQueues", queueNames))
+
+		for _, child := range sortedQueues {
 			log.Log(log.SchedQueue).Info("PSC: examining queue",
 				zap.String("queueName", child.QueuePath))
 			alloc := child.TryAllocate(iterator, fullIterator, getnode, allowPreemption)
