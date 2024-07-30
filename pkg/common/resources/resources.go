@@ -526,6 +526,8 @@ func CompUsageRatioSeparately(left, leftTotal, right, rightTotal *Resource) int 
 	lshares := getShares(left, leftTotal)
 	rshares := getShares(right, rightTotal)
 
+	//PSC: compareShares traverses the two share vectors looking
+	//for the first inequality to determine the winner
 	return compareShares(lshares, rshares)
 }
 

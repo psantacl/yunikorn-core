@@ -823,6 +823,8 @@ func (pc *PartitionContext) tryAllocate() *objects.Allocation {
 		// nothing to do just return
 		return nil
 	}
+	log.Log(log.SchedPartition).Info("PSC ****************************************** top level tryAllocate *****************************************************")
+
 	// try allocating from the root down
 	alloc := pc.root.TryAllocate(pc.GetNodeIterator, pc.GetFullNodeIterator, pc.GetNode, pc.isPreemptionEnabled())
 	if alloc != nil {
