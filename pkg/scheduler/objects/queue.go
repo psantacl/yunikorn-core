@@ -1376,10 +1376,6 @@ func (sq *Queue) canRunApp(appID string) bool {
 // Applications are sorted based on the application sortPolicy. Applications without pending resources are skipped.
 // Lock free call this all locks are taken when needed in called functions
 func (sq *Queue) TryAllocate(iterator func() NodeIterator, fullIterator func() NodeIterator, getnode func(string) *Node, allowPreemption bool) *Allocation {
-	log.Log(log.SchedQueue).Info("PSC: maxResources on queue",
-		zap.String("queueName", sq.QueuePath),
-		zap.Any("maxResources", sq.maxResource))
-
 	if sq.IsLeafQueue() {
 		// get the headroom
 		headRoom := sq.getHeadRoom()

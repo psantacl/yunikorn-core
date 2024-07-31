@@ -75,11 +75,13 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 			zap.Any("lAllocated", l.GetAllocatedResource()),
 			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
 			zap.Any("lMax", l.GetMaxResource()),
+			zap.Any("lMaxQueueSet", l.GetMaxQueueSet()),
 			zap.String("rQueuePath", r.QueuePath),
 			zap.Int32("rPriority", rPriority),
 			zap.Any("rAllocated", r.GetAllocatedResource()),
 			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()),
-			zap.Any("rMax", r.GetMaxResource()))
+			zap.Any("rMax", r.GetMaxResource()),
+			zap.Any("rMaxQueueSet", r.GetMaxQueueSet()))
 
 		if lPriority > rPriority {
 			return true
