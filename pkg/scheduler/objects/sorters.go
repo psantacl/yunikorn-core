@@ -63,17 +63,19 @@ func sortQueuesByPriority(queues []*Queue) {
 }
 
 func sortQueuesByPriorityAndFairness(queues []*Queue) {
-
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
 		r := queues[j]
 		lPriority := l.GetCurrentPriority()
 		rPriority := r.GetCurrentPriority()
+
 		log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByPriorityAndFairness",
 			zap.String("lQueuePath", l.QueuePath),
-			zap.Int32("lPriority", lPriority),
-			zap.String("rQueuePath", r.QueuePath),
-			zap.Int32("rPriority", rPriority))
+			zap.Any("lAllocated", l.GetAllocatedResource()),
+			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
+			zap.String("rQueuePath", l.QueuePath),
+			zap.Any("rAllocated", r.GetAllocatedResource()),
+			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()))
 
 		if lPriority > rPriority {
 			return true
@@ -91,18 +93,10 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 }
 
 func sortQueuesByFairnessAndPriority(queues []*Queue) {
-	// log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByFairnessAndPriority")
+	log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByFairnessAndPriority")
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
 		r := queues[j]
-		log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByFairnessAndPriority: ",
-			zap.String("lQueuePath", l.QueuePath),
-			zap.Any("lAllocated", l.GetAllocatedResource()),
-			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
-			zap.String("rQueuePath", l.QueuePath),
-			zap.Any("rAllocated", r.GetAllocatedResource()),
-			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()))
-
 		comp := resources.CompUsageRatioSeparately(l.GetAllocatedResource(), l.GetGuaranteedResource(),
 			r.GetAllocatedResource(), r.GetGuaranteedResource())
 		if comp == 0 {
