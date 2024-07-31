@@ -32,9 +32,9 @@ import (
 )
 
 func sortQueue(queues []*Queue, sortType policies.SortPolicy, considerPriority bool) {
-	log.Log(log.SchedQueue).Info("PSC: sortQueues",
-		zap.String("sortType", sortType.String()),
-		zap.Bool("considerPriority", considerPriority))
+	// log.Log(log.SchedQueue).Info("PSC: sortQueues",
+	// 	zap.String("sortType", sortType.String()),
+	// 	zap.Bool("considerPriority", considerPriority))
 
 	sortingStart := time.Now()
 	if sortType == policies.FairSortPolicy {
@@ -73,7 +73,7 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 			zap.String("lQueuePath", l.QueuePath),
 			zap.Any("lAllocated", l.GetAllocatedResource()),
 			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
-			zap.String("rQueuePath", l.QueuePath),
+			zap.String("rQueuePath", r.QueuePath),
 			zap.Any("rAllocated", r.GetAllocatedResource()),
 			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()))
 

@@ -526,6 +526,10 @@ func CompUsageRatioSeparately(left, leftTotal, right, rightTotal *Resource) int 
 	lshares := getShares(left, leftTotal)
 	rshares := getShares(right, rightTotal)
 
+	log.Log(log.SchedQueue).Info("PSC: CompUsageRatioSeparately: ",
+		zap.Float64s("lshares", lshares),
+		zap.Float64s("rshares", rshares))
+
 	//PSC: compareShares traverses the two share vectors looking
 	//for the first inequality to determine the winner
 	return compareShares(lshares, rshares)
