@@ -485,6 +485,7 @@ func getShares(res, total *Resource) []float64 {
 					zap.String("resource key", k),
 					zap.Int64("resource quantity", int64(v)))
 			}
+			//NB> use queue GetMaxResource
 			shares[idx] = float64(v)
 			idx++
 			continue
@@ -533,6 +534,7 @@ func CompUsageRatioSeparately(left, leftTotal, right, rightTotal *Resource) int 
 
 	//PSC: compareShares traverses the two share vectors looking
 	//for the first inequality to determine the winner
+	//change this to just compare MAX
 
 	return compareShares(lshares, rshares)
 }
