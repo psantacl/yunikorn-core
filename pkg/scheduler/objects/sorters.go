@@ -71,9 +71,11 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 
 		log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByPriorityAndFairness",
 			zap.String("lQueuePath", l.QueuePath),
+			zap.Int32("lPriority", lPriority),
 			zap.Any("lAllocated", l.GetAllocatedResource()),
 			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
 			zap.String("rQueuePath", r.QueuePath),
+			zap.Int32("rPriority", rPriority),
 			zap.Any("rAllocated", r.GetAllocatedResource()),
 			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()))
 
