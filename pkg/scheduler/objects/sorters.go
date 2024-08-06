@@ -61,7 +61,6 @@ func sortQueuesByPriority(queues []*Queue) {
 		return lPriority > rPriority
 	})
 }
-
 func sortQueuesByPriorityAndFairness(queues []*Queue) {
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
@@ -89,8 +88,10 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 		if lPriority < rPriority {
 			return false
 		}
-		comp := resources.CompUsageRatioSeparately(l.GetAllocatedResource(), l.GetGuaranteedResource(),
-			r.GetAllocatedResource(), r.GetGuaranteedResource())
+
+		comp := resources.CompUsageRatioSeparately(l.GetAllocatedResource(), l.GetGuaranteedResource(), l.GetFairMaxResource(),
+			r.GetAllocatedResource(), r.GetGuaranteedResource(), r.GetFairMaxResource())
+
 		if comp == 0 {
 			return resources.StrictlyGreaterThan(resources.Sub(l.GetPendingResource(), r.GetPendingResource()), resources.Zero)
 		}
@@ -103,8 +104,9 @@ func sortQueuesByFairnessAndPriority(queues []*Queue) {
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
 		r := queues[j]
-		comp := resources.CompUsageRatioSeparately(l.GetAllocatedResource(), l.GetGuaranteedResource(),
-			r.GetAllocatedResource(), r.GetGuaranteedResource())
+
+		comp := resources.CompUsageRatioSeparately(l.GetAllocatedResource(), l.GetGuaranteedResource(), l.GetFairMaxResource(),
+			r.GetAllocatedResource(), r.GetGuaranteedResource(), r.GetFairMaxResource())
 		if comp == 0 {
 			lPriority := l.GetCurrentPriority()
 			rPriority := r.GetCurrentPriority()

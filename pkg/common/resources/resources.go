@@ -458,6 +458,94 @@ func (r *Resource) fitIn(smaller *Resource, skipUndef bool) bool {
 	return true
 }
 
+// Denominator Resources could be guarantees or fairmax
+func getShareFairForDenominator(resourceType string, allocated Quantity, denominatorResources *Resource) (float64, bool) {
+	if denominatorResources == nil {
+		return 0.0, false
+	}
+
+	denominator, ok := denominatorResources.Resources[resourceType]
+	// log.Log(log.Resources).Info("denominator",
+	// 	zap.Any("resource type", resourceType),
+	// 	zap.Any("denominatorResource", denominatorResources),
+	// 	zap.Any("denominator", denominator),
+	// 	zap.Any("ok", ok))
+
+	switch {
+	case ok && denominator <= 0:
+		log.Log(log.Resources).Info("found resource <= 0",
+			zap.Any("resource type", resourceType),
+			zap.Any("denominatorResource", denominatorResources),
+			zap.Any("allocated", allocated),
+			zap.Any("denominator", denominator),
+			zap.Any("ok", ok))
+
+		if denominator < 0 {
+			log.Log(log.Resources).Debug("denominator is negative. will not compute share",
+				zap.String("resource key", resourceType),
+				zap.Int64("resource quantity", int64(denominator)))
+		}
+
+		if allocated <= 0 {
+			//explicit 0 value with NO usage
+			return float64(0.0), true
+
+		} else {
+			//explicit 0 value with usage
+			return float64(1.0), true
+
+		}
+	case denominator > 0:
+		return (float64(allocated) / float64(denominator)), true
+
+	default:
+		//no denominator. ie. no guarantee or fairmax for resourceType
+		return 0.0, false
+	}
+
+}
+
+//NB> allocated && gauranted maybe nil, total can not be
+
+// if there is no full, then the cluster doesn't have it. usage is 100%
+// if there an explicit 0 on full, then either cluster doesn't have it or a queue resource constraint has been set to 0, either way can't run it.  usage is 100%
+func getFairShare(allocated, guaranteed, fair *Resource) float64 {
+	//NB> if we are missing a denominator(from total), the share will be 1(totally consumed)
+	// shortcut if the passed in resource to get the share on is nil or empty (sparse)
+	if allocated == nil || len(allocated.Resources) == 0 {
+		return float64(0)
+	}
+
+	var maxShare float64
+	for k, v := range allocated.Resources {
+		var nextShare float64
+
+		// log.Log(log.Resources).Info("examining ",
+		// 	zap.String("resource key", k),
+		// 	zap.Int64("allocated", int64(allocated.Resources[k])),
+		// 	zap.Int64("guaranteed", int64(guaranteed.Resources[k])),
+		// 	zap.Int64("fair", int64(fair.Resources[k])))
+
+		//if usage <= 0, resource has no share
+		if allocated.Resources[k] < 0 {
+			continue
+		}
+
+		nextShare, found := getShareFairForDenominator(k, v, guaranteed)
+		if !found {
+			nextShare, found = getShareFairForDenominator(k, v, fair)
+		}
+		if found {
+			if nextShare > maxShare {
+				maxShare = nextShare
+			}
+		}
+
+	}
+
+	return maxShare
+}
+
 // Get the share of each resource quantity when compared to the total
 // resources quantity
 // NOTE: shares can be negative and positive in the current assumptions
@@ -523,33 +611,23 @@ func CompUsageRatio(left, right, total *Resource) int {
 // 0 for equal shares
 // 1 if the left share is larger
 // -1 if the right share is larger
-func CompUsageRatioSeparately(left, leftTotal, right, rightTotal *Resource) int {
-	lshares := getShares(left, leftTotal)
-	rshares := getShares(right, rightTotal)
+func CompUsageRatioSeparately(leftAllocated, leftGuaranteed, leftFull, rightAllocated, rightGuaranteed, rightFull *Resource) int {
+	lshare := getFairShare(leftAllocated, leftGuaranteed, leftFull)
+	rshare := getFairShare(rightAllocated, rightGuaranteed, rightFull)
 
-	log.Log(log.SchedQueue).Info("PSC: CompUsageRatioSeparately: ",
-		zap.Float64s("lshares", lshares),
-		zap.Float64s("rshares", rshares),
-		zap.Int("compareShares", compareShares(lshares, rshares)))
+	log.Log(log.SchedQueue).Info("PSC: CompUsageRatioSeparatelyPSC: ",
+		zap.Float64("lshare", lshare),
+		zap.Float64("rshare", rshare))
 
-	//PSC: compareShares traverses the two share vectors looking
-	//for the first inequality to determine the winner
-	//change this to just compare MAX
+	switch {
+	case lshare > rshare:
+		return 1
+	case lshare < rshare:
+		return -1
+	default:
+		return 0
 
-	return compareShares(lshares, rshares)
-}
-
-// Compare two resources usage shares and assumes a nil total resource.
-// The share is thus equivalent to the usage passed in.
-// This returns the same value as compareShares does:
-// 0 for equal shares
-// 1 if the left share is larger
-// -1 if the right share is larger
-func CompUsageShares(left, right *Resource) int {
-	lshares := getShares(left, nil)
-	rshares := getShares(right, nil)
-
-	return compareShares(lshares, rshares)
+	}
 }
 
 // Get fairness ratio calculated by:
