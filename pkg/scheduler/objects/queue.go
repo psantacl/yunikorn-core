@@ -1465,8 +1465,6 @@ func (sq *Queue) TryAllocate(iterator func() NodeIterator, fullIterator func() N
 	} else {
 		// process the child queues (filters out queues without pending requests)
 		for _, child := range sq.sortQueues() {
-			log.Log(log.SchedQueue).Info("PSC: examining queue",
-				zap.String("queueName", child.QueuePath))
 			alloc := child.TryAllocate(iterator, fullIterator, getnode, allowPreemption)
 			if alloc != nil {
 				return alloc
