@@ -594,10 +594,6 @@ func CompUsageRatioSeparately(leftAllocated, leftGuaranteed, leftFull, rightAllo
 	lshare := getFairShare(leftAllocated, leftGuaranteed, leftFull)
 	rshare := getFairShare(rightAllocated, rightGuaranteed, rightFull)
 
-	log.Log(log.SchedQueue).Info("PSC: CompUsageRatioSeparatelyPSC: ",
-		zap.Float64("lshare", lshare),
-		zap.Float64("rshare", rshare))
-
 	switch {
 	case lshare > rshare:
 		return 1
