@@ -1270,7 +1270,9 @@ func (sq *Queue) GetMaxResource() *resources.Resource {
 	return sq.internalGetMax(limit)
 }
 
-// GetFullResource returns the resource which, if fully consumed, closely approximates a queue at 100% capacity.
+// Starting with the root, descend down to the target queue allowing children to override Resource values .
+// If the root includes an explicit 0 value for a Resource, do not include it in the accumulator and treat it as missing.
+// If no children provide a maximum capacity override, the resulting value will be the value found on the Root.
 // It is useful for fair-scheduling to allow a ratio to be produced representing the rough utilization % of a given queue.
 func (sq *Queue) GetFairMaxResource() *resources.Resource {
 	var limit *resources.Resource
@@ -1290,7 +1292,7 @@ func (sq *Queue) GetFairMaxResource() *resources.Resource {
 	}
 
 	limit = sq.parent.GetFairMaxResource()
-	return sq.internalGetFairResource(limit)
+	return sq.internalGetFairMaxResource(limit)
 }
 
 // GetMaxQueueSet returns the max resource for the queue. The max resource should never be larger than the
@@ -1309,7 +1311,7 @@ func (sq *Queue) GetMaxQueueSet() *resources.Resource {
 	return sq.internalGetMax(limit)
 }
 
-func (sq *Queue) internalGetFairResource(parent *resources.Resource) *resources.Resource {
+func (sq *Queue) internalGetFairMaxResource(parent *resources.Resource) *resources.Resource {
 	sq.RLock()
 	defer sq.RUnlock()
 
@@ -1445,11 +1447,6 @@ func (sq *Queue) TryAllocate(iterator func() NodeIterator, fullIterator func() N
 			if app.IsAccepted() && (!runnableInQueue || !runnableByUserLimit) {
 				continue
 			}
-
-			//psc
-			// log.Log(log.SchedQueue).Info("PSC: checking application for potential allocation on queue",
-			// 	zap.String("appID", app.ApplicationID),
-			// 	zap.String("queueName", sq.QueuePath))
 
 			alloc := app.tryAllocate(headRoom, allowPreemption, preemptionDelay, &preemptAttemptsRemaining, iterator, fullIterator, getnode)
 			if alloc != nil {
