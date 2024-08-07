@@ -25,17 +25,9 @@ import (
 	"github.com/apache/yunikorn-core/pkg/common/resources"
 	"github.com/apache/yunikorn-core/pkg/metrics"
 	"github.com/apache/yunikorn-core/pkg/scheduler/policies"
-
-	//psc
-	"github.com/apache/yunikorn-core/pkg/log"
-	"go.uber.org/zap"
 )
 
 func sortQueue(queues []*Queue, sortType policies.SortPolicy, considerPriority bool) {
-	// log.Log(log.SchedQueue).Info("PSC: sortQueues",
-	// 	zap.String("sortType", sortType.String()),
-	// 	zap.Bool("considerPriority", considerPriority))
-
 	sortingStart := time.Now()
 	if sortType == policies.FairSortPolicy {
 		if considerPriority {
@@ -52,7 +44,6 @@ func sortQueue(queues []*Queue, sortType policies.SortPolicy, considerPriority b
 }
 
 func sortQueuesByPriority(queues []*Queue) {
-	log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByPriority")
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
 		r := queues[j]
@@ -67,20 +58,6 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 		r := queues[j]
 		lPriority := l.GetCurrentPriority()
 		rPriority := r.GetCurrentPriority()
-
-		log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByPriorityAndFairness",
-			zap.String("lQueuePath", l.QueuePath),
-			zap.Int32("lPriority", lPriority),
-			zap.Any("lAllocated", l.GetAllocatedResource()),
-			zap.Any("lGuaranteed", l.GetGuaranteedResource()),
-			zap.Any("lMax", l.GetMaxResource()),
-			zap.Any("lMaxQueueSet", l.GetMaxQueueSet()),
-			zap.String("rQueuePath", r.QueuePath),
-			zap.Int32("rPriority", rPriority),
-			zap.Any("rAllocated", r.GetAllocatedResource()),
-			zap.Any("rGuaranteed", r.GetActualGuaranteedResource()),
-			zap.Any("rMax", r.GetMaxResource()),
-			zap.Any("rMaxQueueSet", r.GetMaxQueueSet()))
 
 		if lPriority > rPriority {
 			return true
@@ -100,7 +77,6 @@ func sortQueuesByPriorityAndFairness(queues []*Queue) {
 }
 
 func sortQueuesByFairnessAndPriority(queues []*Queue) {
-	log.Log(log.SchedQueue).Info("PSC: inside of sortQueuesByFairnessAndPriority")
 	sort.SliceStable(queues, func(i, j int) bool {
 		l := queues[i]
 		r := queues[j]
