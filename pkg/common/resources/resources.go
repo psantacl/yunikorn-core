@@ -590,9 +590,9 @@ func CompUsageRatio(left, right, total *Resource) int {
 // 0 for equal shares
 // 1 if the left share is larger
 // -1 if the right share is larger
-func CompUsageRatioSeparately(leftAllocated, leftGuaranteed, leftFull, rightAllocated, rightGuaranteed, rightFull *Resource) int {
-	lshare := getFairShare(leftAllocated, leftGuaranteed, leftFull)
-	rshare := getFairShare(rightAllocated, rightGuaranteed, rightFull)
+func CompUsageRatioSeparately(leftAllocated, leftGuaranteed, leftFairMax, rightAllocated, rightGuaranteed, rightFairMax *Resource) int {
+	lshare := getFairShare(leftAllocated, leftGuaranteed, leftFairMax)
+	rshare := getFairShare(rightAllocated, rightGuaranteed, rightFairMax)
 
 	switch {
 	case lshare > rshare:
