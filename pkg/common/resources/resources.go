@@ -553,7 +553,6 @@ func getShares(res, total *Resource) []float64 {
 					zap.String("resource key", k),
 					zap.Int64("resource quantity", int64(v)))
 			}
-			//NB> use queue GetMaxResource
 			shares[idx] = float64(v)
 			idx++
 			continue
