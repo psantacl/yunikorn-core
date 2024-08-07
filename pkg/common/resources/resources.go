@@ -458,28 +458,17 @@ func (r *Resource) fitIn(smaller *Resource, skipUndef bool) bool {
 	return true
 }
 
-// Denominator Resources could be guarantees or fairmax
+// Denominator Resources can be either guaranteed Resources or fairmax Resources.
+// If the quanity is explicitly 0 or negative, we will check usage.  If usage >= 0, the share will be set to 1.0.  Otherwise, it will be set 0.0.
 func getShareFairForDenominator(resourceType string, allocated Quantity, denominatorResources *Resource) (float64, bool) {
 	if denominatorResources == nil {
 		return 0.0, false
 	}
 
 	denominator, ok := denominatorResources.Resources[resourceType]
-	// log.Log(log.Resources).Info("denominator",
-	// 	zap.Any("resource type", resourceType),
-	// 	zap.Any("denominatorResource", denominatorResources),
-	// 	zap.Any("denominator", denominator),
-	// 	zap.Any("ok", ok))
 
 	switch {
 	case ok && denominator <= 0:
-		log.Log(log.Resources).Info("found resource <= 0",
-			zap.Any("resource type", resourceType),
-			zap.Any("denominatorResource", denominatorResources),
-			zap.Any("allocated", allocated),
-			zap.Any("denominator", denominator),
-			zap.Any("ok", ok))
-
 		if denominator < 0 {
 			log.Log(log.Resources).Debug("denominator is negative. will not compute share",
 				zap.String("resource key", resourceType),
@@ -487,11 +476,11 @@ func getShareFairForDenominator(resourceType string, allocated Quantity, denomin
 		}
 
 		if allocated <= 0 {
-			//explicit 0 value with NO usage
+			//explicit 0 or negative value with NO usage
 			return float64(0.0), true
 
 		} else {
-			//explicit 0 value with usage
+			//explicit 0 or negative value with usage
 			return float64(1.0), true
 
 		}
@@ -502,16 +491,13 @@ func getShareFairForDenominator(resourceType string, allocated Quantity, denomin
 		//no denominator. ie. no guarantee or fairmax for resourceType
 		return 0.0, false
 	}
-
 }
 
-//NB> allocated && gauranted maybe nil, total can not be
-
-// if there is no full, then the cluster doesn't have it. usage is 100%
-// if there an explicit 0 on full, then either cluster doesn't have it or a queue resource constraint has been set to 0, either way can't run it.  usage is 100%
+// For a given queue, produce a ratio which represents it's current 'fair' share usage.
+// Iterate over all of the allocated resource types.  For each, compute the ratio, ultimately returning the max ratio encountered.
+// The numerator will be the allocated usage.
+// If guarantees are present, they will be used for the denominator, otherwise we will fallback to the 'maxfair' capacity of the cluster.
 func getFairShare(allocated, guaranteed, fair *Resource) float64 {
-	//NB> if we are missing a denominator(from total), the share will be 1(totally consumed)
-	// shortcut if the passed in resource to get the share on is nil or empty (sparse)
 	if allocated == nil || len(allocated.Resources) == 0 {
 		return float64(0)
 	}
@@ -519,12 +505,6 @@ func getFairShare(allocated, guaranteed, fair *Resource) float64 {
 	var maxShare float64
 	for k, v := range allocated.Resources {
 		var nextShare float64
-
-		// log.Log(log.Resources).Info("examining ",
-		// 	zap.String("resource key", k),
-		// 	zap.Int64("allocated", int64(allocated.Resources[k])),
-		// 	zap.Int64("guaranteed", int64(guaranteed.Resources[k])),
-		// 	zap.Int64("fair", int64(fair.Resources[k])))
 
 		//if usage <= 0, resource has no share
 		if allocated.Resources[k] < 0 {
