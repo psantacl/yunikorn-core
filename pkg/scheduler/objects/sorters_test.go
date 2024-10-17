@@ -120,7 +120,6 @@ func TestSortQueuesWithGuarantees(t *testing.T) {
 	q1.guaranteedResource = resources.NewResourceFromMap(map[string]resources.Quantity{"memory": 400, "vcore": 300})
 	q1.allocatedResource = resources.NewResourceFromMap(map[string]resources.Quantity{"memory": 200, "vcore": 150})
 	queues = []*Queue{q0, q1, q2, q3}
-	sortQueue(queues, policies.FairSortPolicy, false)
 	sortQueue(queues, fairMaxResources, policies.FairSortPolicy, false)
 	assert.Equal(t, queueNames(queues), queueNames([]*Queue{q3, q0, q1, q2}), "fair - pending resource")
 }
