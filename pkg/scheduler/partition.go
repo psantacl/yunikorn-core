@@ -1307,6 +1307,7 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 	for _, alloc := range released {
 		node := pc.GetNode(alloc.GetNodeID())
 		if node == nil {
+			//NB> we do NOT see this in the logs
 			log.Log(log.SchedPartition).Warn("node not found while releasing allocation",
 				zap.String("appID", appID),
 				zap.String("allocationID", alloc.GetAllocationID()),
@@ -1355,6 +1356,7 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 	}
 	if resources.StrictlyGreaterThanZero(total) {
 		if err := queue.DecAllocatedResource(total); err != nil {
+			//NB> we do not see this in the logs
 			log.Log(log.SchedPartition).Warn("failed to release resources from queue",
 				zap.String("appID", appID),
 				zap.String("allocationID", allocationID),

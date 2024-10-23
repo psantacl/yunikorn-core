@@ -124,6 +124,7 @@ func enqueueAndCheckFull(queue chan interface{}, ev interface{}) {
 	}
 }
 
+// NB> this is where we process events from the shim
 func (s *Scheduler) handleRMEvent() {
 	for {
 		select {

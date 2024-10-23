@@ -1034,7 +1034,7 @@ func (sq *Queue) isRoot() bool {
 // Guard against going over max resources if set
 func (sq *Queue) IncAllocatedResource(alloc *resources.Resource, nodeReported bool) error {
 	// check this queue: failure stops checks if the allocation is not part of a node addition
-	fit, newAllocated := sq.allocatedResFits(alloc)
+	fit, _ := sq.allocatedResFits(alloc)
 	if !nodeReported && !fit {
 		return fmt.Errorf("allocation (%v) puts queue '%s' over maximum allocation (%v), current usage (%v)",
 			alloc, sq.QueuePath, sq.maxResource, sq.allocatedResource)
@@ -1058,6 +1058,7 @@ func (sq *Queue) IncAllocatedResource(alloc *resources.Resource, nodeReported bo
 	sq.Lock()
 	defer sq.Unlock()
 	// all OK update this queue
+	newAllocated := resources.Add(sq.allocatedResource, alloc)
 	sq.allocatedResource = newAllocated
 	sq.updateAllocatedResourceMetrics()
 	return nil
