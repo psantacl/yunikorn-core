@@ -539,10 +539,15 @@ func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 	// look for additional victims in case we have not yet made enough capacity in the queue
 	extraVictims, ok := p.calculateAdditionalVictims(victims)
 	if !ok {
+		log.Log(log.SchedPreemption).Info("PSC: FAILED calculateAdditionalVictims()")
 		// not enough resources were preempted
 		return nil, false
 	}
 	victims = append(victims, extraVictims...)
+	log.Log(log.SchedPreemption).Info("PSC: passed calculateAdditionalVictims()",
+		zap.Int("victims", len(victims)),
+		zap.Int("extraVictims", len(extraVictims)))
+
 	if len(victims) == 0 {
 		return nil, false
 	}
