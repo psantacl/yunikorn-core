@@ -965,6 +965,10 @@ func (sa *Application) tryAllocate(headRoom *resources.Resource, allowPreemption
 
 		// resource must fit in headroom otherwise skip the request (unless preemption could help)
 		if !headRoom.FitInMaxUndef(request.GetAllocatedResource()) {
+			log.Log(log.SchedApplication).Info("PSC: can't find allocation, should we preempt?",
+				zap.Bool("allowPreemption", allowPreemption),
+				zap.Int("preemptAttemptsRemaining", *preemptAttemptsRemaining))
+
 			// attempt preemption
 			if allowPreemption && *preemptAttemptsRemaining > 0 {
 				*preemptAttemptsRemaining--
@@ -1303,8 +1307,10 @@ func (sa *Application) tryPreemption(headRoom *resources.Resource, preemptionDel
 
 	// validate prerequisites for preemption of an ask and mark ask for preemption if successful
 	if !preemptor.CheckPreconditions() {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions")
 		return nil, false
 	}
+	log.Log(log.SchedApplication).Info("PSC: passed  preemptor.CheckPreconditions")
 
 	// track time spent trying preemption
 	tryPreemptionStart := time.Now()

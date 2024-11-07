@@ -518,8 +518,11 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 	// validate that sufficient capacity can be freed
 	if !p.checkPreemptionQueueGuarantees() {
+		log.Log(log.SchedPreemption).Info("PSC: FAILED checkPreemptionQueueGuarantees ")
 		return nil, false
 	}
+
+	log.Log(log.SchedPreemption).Info("PSC: passed  checkPreemptionQueueGuarantees ")
 
 	// ensure required data structures are populated
 	p.initWorkingState()
@@ -527,9 +530,11 @@ func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 	// try to find a node to schedule on and victims to preempt
 	nodeID, victims, ok := p.tryNodes()
 	if !ok {
+		log.Log(log.SchedPreemption).Info("PSC: FAILED tryNodes() ")
 		// no preemption possible
 		return nil, false
 	}
+	log.Log(log.SchedPreemption).Info("PSC: passed tryNodes() ")
 
 	// look for additional victims in case we have not yet made enough capacity in the queue
 	extraVictims, ok := p.calculateAdditionalVictims(victims)
