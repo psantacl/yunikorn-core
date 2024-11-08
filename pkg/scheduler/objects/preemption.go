@@ -92,26 +92,36 @@ func (p *Preemptor) CheckPreconditions() bool {
 
 	// skip if ask is not allowed to preempt other tasks
 	if !p.ask.IsAllowPreemptOther() {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: IsAllowPreemptOther()",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
 	// skip if ask has previously triggered preemption
 	if p.ask.HasTriggeredPreemption() {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: HasTriggeredPreemption()",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
 	// skip if ask requires a specific node (this should be handled by required node preemption algorithm)
 	if p.ask.GetRequiredNode() != "" {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: GetRequiredNode()",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
 	// skip if preemption delay has not yet passed
 	if now.Before(p.ask.GetCreateTime().Add(p.preemptionDelay)) {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: p.preemptionDelay()",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
 	// skip if attempt frequency hasn't been reached again
 	if now.Before(p.ask.GetPreemptCheckTime().Add(preemptAttemptFrequency)) {
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
