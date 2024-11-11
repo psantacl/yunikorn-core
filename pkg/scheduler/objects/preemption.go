@@ -404,6 +404,7 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			break
 		}
 	}
+	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult: ", zap.Any("bestResult", bestResult))
 	bestResult.populateVictims(victimsByNode)
 	return bestResult
 }
@@ -516,8 +517,12 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 			}
 		}
 	}
+	log.Log(log.SchedApplication).Info("PSC:  tryNodes():", zap.Any("victimsByNode", victimsByNode))
+
 	// call predicates to evaluate each node
+	log.Log(log.SchedApplication).Info("PSC:  BEFORE checkPreemptionPredicates():", zap.Any("predicateChecks", predicateChecks), zap.Any("victimsByNode", victimsByNode))
 	result := p.checkPreemptionPredicates(predicateChecks, victimsByNode)
+	log.Log(log.SchedApplication).Info("PSC:  AFTER checkPreemptionPredicates():", zap.Any("predicateChecks", predicateChecks), zap.Any("result", result))
 	if result != nil && result.success {
 		return result.nodeID, result.victims, true
 	}
