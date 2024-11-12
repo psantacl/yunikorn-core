@@ -120,8 +120,8 @@ func (p *Preemptor) CheckPreconditions() bool {
 
 	// skip if attempt frequency hasn't been reached again
 	if now.Before(p.ask.GetPreemptCheckTime().Add(preemptAttemptFrequency)) {
-		// log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
-		// 	zap.Any("ask", p.ask))
+		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
+			zap.Any("ask", p.ask))
 		return false
 	}
 
@@ -506,7 +506,8 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 		}
 		// identify which victims and in which order should be tried
 		log.Log(log.SchedApplication).Info("PSC: calculateVictimsByNode starting",
-			zap.Any("nodeID", nodeID))
+			zap.Any("nodeID", nodeID),
+			zap.Any("queuePath", p.queuePath))
 
 		if idx, victims := p.calculateVictimsByNode(nodeAvailable, allocations); victims != nil {
 			victimsByNode[nodeID] = victims
@@ -544,8 +545,7 @@ func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 		log.Log(log.SchedPreemption).Info("PSC: FAILED checkPreemptionQueueGuarantees ")
 		return nil, false
 	}
-
-	log.Log(log.SchedPreemption).Info("PSC: passed  checkPreemptionQueueGuarantees ")
+	// log.Log(log.SchedPreemption).Info("PSC: passed  checkPreemptionQueueGuarantees ")
 
 	// ensure required data structures are populated
 	p.initWorkingState()

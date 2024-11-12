@@ -1303,10 +1303,10 @@ func (sa *Application) tryPreemption(headRoom *resources.Resource, preemptionDel
 
 	// validate prerequisites for preemption of an ask and mark ask for preemption if successful
 	if !preemptor.CheckPreconditions() {
-		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions")
+		// log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions")
 		return nil, false
 	}
-	log.Log(log.SchedApplication).Info("PSC: passed  preemptor.CheckPreconditions")
+	// log.Log(log.SchedApplication).Info("PSC: passed  preemptor.CheckPreconditions")
 
 	// track time spent trying preemption
 	tryPreemptionStart := time.Now()
