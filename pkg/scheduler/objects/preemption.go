@@ -225,6 +225,9 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 	// to queue limits and not node resource limits.
 	if nodeCurrentAvailable.FitIn(p.ask.GetAllocatedResource()) {
 		// return empty list so this node is considered for preemption
+		log.Log(log.SchedApplication).Info("PSC:  FAILURE Initial check",
+			zap.Any(" nodeCurrentAvailable", nodeCurrentAvailable),
+			zap.Any("p.ask.GetAllocatedResource()", p.ask.GetAllocatedResource()))
 		return -1, make([]*Allocation, 0)
 	}
 
@@ -275,6 +278,7 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 	// merge lists
 	head = append(head, tail...)
 	if len(head) == 0 {
+		log.Log(log.SchedApplication).Info("PSC:  FAILURE first pass found no head or tail")
 		return -1, nil
 	}
 
@@ -322,6 +326,7 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 
 	// check to see if enough resources were freed
 	if index < 0 {
+		log.Log(log.SchedApplication).Info("PSC:  FAILURE second pass found no index")
 		return -1, nil
 	}
 
@@ -520,9 +525,9 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 	log.Log(log.SchedApplication).Info("PSC:  tryNodes():", zap.Any("victimsByNode", victimsByNode))
 
 	// call predicates to evaluate each node
-	log.Log(log.SchedApplication).Info("PSC:  BEFORE checkPreemptionPredicates():", zap.Any("predicateChecks", predicateChecks), zap.Any("victimsByNode", victimsByNode))
+	log.Log(log.SchedApplication).Info("PSC:  BEFORE checkPreemptionPredicates():", zap.Any("victimsByNode", victimsByNode))
 	result := p.checkPreemptionPredicates(predicateChecks, victimsByNode)
-	log.Log(log.SchedApplication).Info("PSC:  AFTER checkPreemptionPredicates():", zap.Any("predicateChecks", predicateChecks), zap.Any("result", result))
+	log.Log(log.SchedApplication).Info("PSC:  AFTER checkPreemptionPredicates():", zap.Any("result", result))
 	if result != nil && result.success {
 		return result.nodeID, result.victims, true
 	}
