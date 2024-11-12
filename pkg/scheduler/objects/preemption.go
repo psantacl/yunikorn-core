@@ -120,8 +120,8 @@ func (p *Preemptor) CheckPreconditions() bool {
 
 	// skip if attempt frequency hasn't been reached again
 	if now.Before(p.ask.GetPreemptCheckTime().Add(preemptAttemptFrequency)) {
-		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
-			zap.Any("ask", p.ask))
+		// log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
+		// 	zap.Any("ask", p.ask))
 		return false
 	}
 
@@ -225,7 +225,7 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 	// to queue limits and not node resource limits.
 	if nodeCurrentAvailable.FitIn(p.ask.GetAllocatedResource()) {
 		// return empty list so this node is considered for preemption
-		log.Log(log.SchedApplication).Info("PSC:  FAILURE Initial check",
+		log.Log(log.SchedApplication).Info("PSC:  calculateVictimsByNode FAILURE Initial check",
 			zap.Any(" nodeCurrentAvailable", nodeCurrentAvailable),
 			zap.Any("p.ask.GetAllocatedResource()", p.ask.GetAllocatedResource()))
 		return -1, make([]*Allocation, 0)
@@ -278,7 +278,7 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 	// merge lists
 	head = append(head, tail...)
 	if len(head) == 0 {
-		log.Log(log.SchedApplication).Info("PSC:  FAILURE first pass found no head or tail")
+		log.Log(log.SchedApplication).Info("PSC: calculateVictimsByNode FAILURE first pass found no head or tail")
 		return -1, nil
 	}
 
@@ -326,7 +326,7 @@ func (p *Preemptor) calculateVictimsByNode(nodeAvailable *resources.Resource, po
 
 	// check to see if enough resources were freed
 	if index < 0 {
-		log.Log(log.SchedApplication).Info("PSC:  FAILURE second pass found no index")
+		log.Log(log.SchedApplication).Info("PSC: calculateVictimsByNode FAILURE second pass found no index")
 		return -1, nil
 	}
 
@@ -505,6 +505,9 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 			allocations = make([]*Allocation, 0)
 		}
 		// identify which victims and in which order should be tried
+		log.Log(log.SchedApplication).Info("PSC: calculateVictimsByNode starting",
+			zap.Any("nodeID", nodeID))
+
 		if idx, victims := p.calculateVictimsByNode(nodeAvailable, allocations); victims != nil {
 			victimsByNode[nodeID] = victims
 			keys := make([]string, 0)
