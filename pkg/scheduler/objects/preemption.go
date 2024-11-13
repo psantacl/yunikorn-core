@@ -343,6 +343,9 @@ func (p *Preemptor) duplicateQueueSnapshots() map[string]*QueuePreemptionSnapsho
 
 // checkPreemptionPredicates calls the shim via the SI to evaluate nodes for preemption
 func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPredicatesArgs, victimsByNode map[string][]*Allocation) *predicateCheckResult {
+	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates start",
+		zap.Any("predicateChecks", predicateChecks))
+
 	// don't process empty list
 	if len(predicateChecks) == 0 {
 		return nil
@@ -897,7 +900,8 @@ func sortVictimsForPreemption(allocationsByNode map[string][]*Allocation) {
 
 // preemptPredicateCheck performs a single predicate check and reports the result on a channel
 func preemptPredicateCheck(plugin api.ResourceManagerCallback, ch chan<- *predicateCheckResult, wg *sync.WaitGroup, args *si.PreemptionPredicatesArgs) {
-	log.Log(log.SchedApplication).Info("PSC: preemptPredicateCheck start")
+	log.Log(log.SchedApplication).Info("PSC: preemptPredicateCheck start",
+		zap.Any("args", args))
 
 	defer wg.Done()
 	result := &predicateCheckResult{
