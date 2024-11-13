@@ -395,6 +395,13 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			close(ch)
 		}()
 		for result := range ch {
+			log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates got result",
+				zap.Any("result.allocationKey", result.allocationKey),
+				zap.Any("result.nodeID", result.nodeID),
+				zap.Any("result.success", result.success),
+				zap.Any("result.index", result.index),
+				zap.Any("result.victims", result.victims))
+
 			// if result is successful, keep track of it
 			if result.success {
 				if bestResult == nil {
@@ -409,7 +416,12 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			break
 		}
 	}
-	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult: ", zap.Any("bestResult", bestResult))
+	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult",
+		zap.Any("bestResult.allocationKey", bestResult.allocationKey),
+		zap.Any("bestResult.nodeID", bestResult.nodeID),
+		zap.Any("bestResult.success", bestResult.success),
+		zap.Any("bestResult.index", bestResult.index),
+		zap.Any("bestResult.victim", bestResult.victim))
 	bestResult.populateVictims(victimsByNode)
 	return bestResult
 }
@@ -532,13 +544,16 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 		for _, alloc := range allocs {
 			log.Log(log.SchedApplication).Info("PSC:  victimsByNode():", zap.Any("nodeId", nodeId), zap.Any("allocation", alloc.GetAllocationID()))
 		}
-
 	}
 
 	// call predicates to evaluate each node
-	log.Log(log.SchedApplication).Info("PSC:  BEFORE checkPreemptionPredicates():", zap.Any("victimsByNode", victimsByNode))
 	result := p.checkPreemptionPredicates(predicateChecks, victimsByNode)
-	log.Log(log.SchedApplication).Info("PSC:  AFTER checkPreemptionPredicates():", zap.Any("result", result))
+	log.Log(log.SchedApplication).Info("PSC:  AFTER checkPreemptionPredicates():",
+		zap.Any("result", result),
+		zap.Any("result.success", result.success),
+		zap.Any("result.nodeId", result.nodeID),
+		zap.Any("result.victims", result.victims))
+
 	if result != nil && result.success {
 		return result.nodeID, result.victims, true
 	}
@@ -882,6 +897,8 @@ func sortVictimsForPreemption(allocationsByNode map[string][]*Allocation) {
 
 // preemptPredicateCheck performs a single predicate check and reports the result on a channel
 func preemptPredicateCheck(plugin api.ResourceManagerCallback, ch chan<- *predicateCheckResult, wg *sync.WaitGroup, args *si.PreemptionPredicatesArgs) {
+	log.Log(log.SchedApplication).Info("PSC: preemptPredicateCheck start")
+
 	defer wg.Done()
 	result := &predicateCheckResult{
 		allocationKey: args.AllocationKey,
@@ -906,6 +923,14 @@ func preemptPredicateCheck(plugin api.ResourceManagerCallback, ch chan<- *predic
 			result.index = int(response.GetIndex())
 		}
 	}
+
+	log.Log(log.SchedApplication).Info("PSC: preemptPredicateCheck finish",
+		zap.Any("result.allocationKey", result.allocationKey),
+		zap.Any("result.nodeID", result.nodeID),
+		zap.Any("result.success", result.success),
+		zap.Any("result.index", result.index),
+		zap.Any("result.victims", result.victims))
+
 	ch <- result
 }
 
