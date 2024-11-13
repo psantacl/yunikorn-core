@@ -596,6 +596,11 @@ func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 		zap.Int("victims", len(victims)),
 		zap.Int("extraVictims", len(extraVictims)))
 
+	for _, v := range victims {
+		log.Log(log.SchedPreemption).Info("PSC: passed calculateAdditionalVictims()",
+			zap.Any("victim", v.GetAllocationID()))
+	}
+
 	if len(victims) == 0 {
 		return nil, false
 	}
