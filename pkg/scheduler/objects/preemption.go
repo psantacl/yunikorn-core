@@ -421,7 +421,7 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 		zap.Any("bestResult.nodeID", bestResult.nodeID),
 		zap.Any("bestResult.success", bestResult.success),
 		zap.Any("bestResult.index", bestResult.index),
-		zap.Any("bestResult.victim", bestResult.victim))
+		zap.Any("bestResult.victim", bestResult.victims))
 	bestResult.populateVictims(victimsByNode)
 	return bestResult
 }
