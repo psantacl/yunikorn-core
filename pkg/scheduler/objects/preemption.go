@@ -514,7 +514,9 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 			keys := make([]string, 0)
 			for _, victim := range victims {
 				keys = append(keys, victim.GetAllocationKey())
+				log.Log(log.SchedApplication).Info("PSC:  found Victim:", zap.Any("victim", victim.GetAllocationKey()))
 			}
+
 			// only check this node if there are victims or we have not already tried scheduling
 			if len(victims) > 0 || !p.nodesTried {
 				predicateChecks = append(predicateChecks, &si.PreemptionPredicatesArgs{
@@ -526,7 +528,12 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 			}
 		}
 	}
-	log.Log(log.SchedApplication).Info("PSC:  tryNodes():", zap.Any("victimsByNode", victimsByNode))
+	for nodeId, allocs := range victimsByNode {
+		for _, alloc := range allocs {
+			log.Log(log.SchedApplication).Info("PSC:  victimsByNode():", zap.Any("nodeId", nodeId), zap.Any("allocation", alloc.GetAllocationID()))
+		}
+
+	}
 
 	// call predicates to evaluate each node
 	log.Log(log.SchedApplication).Info("PSC:  BEFORE checkPreemptionPredicates():", zap.Any("victimsByNode", victimsByNode))
