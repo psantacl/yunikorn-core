@@ -422,11 +422,7 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 
 	bestResult.populateVictims(victimsByNode)
 	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult",
-		zap.Any("bestResult.allocationKey", bestResult.allocationKey),
-		zap.Any("bestResult.nodeID", bestResult.nodeID),
-		zap.Any("bestResult.success", bestResult.success),
-		zap.Any("bestResult.index", bestResult.index),
-		zap.Any("bestResult.victim", bestResult.victims))
+		zap.Any("bestResult", bestResult))
 
 	return bestResult
 }
