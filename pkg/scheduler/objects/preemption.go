@@ -409,9 +409,9 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			if result.success {
 				if bestResult == nil {
 					log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates setting bestResult 1 to",
-						zap.Any("result.success", bestResult.success),
-						zap.Any("result.nodeId", bestResult.nodeID),
-						zap.Any("result.index", bestResult.index))
+						zap.Any("result.success", result.success),
+						zap.Any("result.nodeId", result.nodeID),
+						zap.Any("result.index", result.index))
 					bestResult = result
 				} else if result.betterThan(bestResult, p.allocationsByNode) {
 					log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates setting bestResult 2 to",
