@@ -419,13 +419,15 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			break
 		}
 	}
+
+	bestResult.populateVictims(victimsByNode)
 	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult",
 		zap.Any("bestResult.allocationKey", bestResult.allocationKey),
 		zap.Any("bestResult.nodeID", bestResult.nodeID),
 		zap.Any("bestResult.success", bestResult.success),
 		zap.Any("bestResult.index", bestResult.index),
 		zap.Any("bestResult.victim", bestResult.victims))
-	bestResult.populateVictims(victimsByNode)
+
 	return bestResult
 }
 
@@ -543,6 +545,7 @@ func (p *Preemptor) tryNodes() (string, []*Allocation, bool) {
 			}
 		}
 	}
+
 	for nodeId, allocs := range victimsByNode {
 		for _, alloc := range allocs {
 			log.Log(log.SchedApplication).Info("PSC:  victimsByNode():", zap.Any("nodeId", nodeId), zap.Any("allocation", alloc.GetAllocationID()))
@@ -571,6 +574,8 @@ func (p *Preemptor) TryPreemption() (*Allocation, bool) {
 		return nil, false
 	}
 	// log.Log(log.SchedPreemption).Info("PSC: passed  checkPreemptionQueueGuarantees ")
+
+	log.Log(log.SchedPreemption).Info("PSC: *************************************************************************************")
 
 	// ensure required data structures are populated
 	p.initWorkingState()
