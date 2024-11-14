@@ -408,21 +408,40 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 			// if result is successful, keep track of it
 			if result.success {
 				if bestResult == nil {
+					log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates setting bestResult 1 to",
+						zap.Any("result.success", bestResult.success),
+						zap.Any("result.nodeId", bestResult.nodeID),
+						zap.Any("result.index", bestResult.index))
 					bestResult = result
 				} else if result.betterThan(bestResult, p.allocationsByNode) {
+					log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates setting bestResult 2 to",
+						zap.Any("result.success", bestResult.success),
+						zap.Any("result.nodeId", bestResult.nodeID),
+						zap.Any("result.index", bestResult.index))
 					bestResult = result
 				}
 			}
 		}
 		// if the best result we have from this batch meets all our criteria, don't run another batch
 		if bestResult.isSatisfactory(p.allocationsByNode) {
+			log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult was satisfactory",
+				zap.Any("bestResult.success", bestResult.success),
+				zap.Any("bestResult.nodeId", bestResult.nodeID),
+				zap.Any("bestResult.index", bestResult.index),
+				zap.Any("bestResult.victims", bestResult.victims))
+
 			break
 		}
 	}
 
+	log.Log(log.SchedApplication).Info("PSC: end checkPreemptionPredicates bestResult",
+		zap.Any("victimsByNode", victimsByNode))
 	bestResult.populateVictims(victimsByNode)
-	log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates bestResult",
-		zap.Any("bestResult", bestResult))
+	log.Log(log.SchedApplication).Info("PSC: end checkPreemptionPredicates bestResult",
+		zap.Any("bestResult.success", bestResult.success),
+		zap.Any("bestResult.nodeId", bestResult.nodeID),
+		zap.Any("bestResult.index", bestResult.index),
+		zap.Any("bestResult.victims", bestResult.victims))
 
 	return bestResult
 }
