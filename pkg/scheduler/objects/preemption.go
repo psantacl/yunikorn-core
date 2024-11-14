@@ -120,8 +120,8 @@ func (p *Preemptor) CheckPreconditions() bool {
 
 	// skip if attempt frequency hasn't been reached again
 	if now.Before(p.ask.GetPreemptCheckTime().Add(preemptAttemptFrequency)) {
-		log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
-			zap.Any("ask", p.ask))
+		// log.Log(log.SchedApplication).Info("PSC: FAILED preemptor.CheckPreconditions: preemptAttemptFrequency",
+		// 	zap.Any("ask", p.ask))
 		return false
 	}
 
