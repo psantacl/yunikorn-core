@@ -475,6 +475,8 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 		}
 	}
 
+	log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims", zap.Any("seen", seen))
+
 	// build and sort list of potential victims
 	potentialVictims := make([]*Allocation, 0)
 	for _, alloc := range p.allocationsByQueue {
@@ -489,6 +491,8 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 	sort.SliceStable(potentialVictims, func(i, j int) bool {
 		return compareAllocationLess(potentialVictims[i], potentialVictims[j])
 	})
+
+	log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims", zap.Any("potentialVictims", potentialVictims))
 
 	// evaluate each potential victim in turn, stopping once sufficient resources have been freed
 	victims := make([]*Allocation, 0)
@@ -507,17 +511,33 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 					// check to see if the shortfall on the queue has changed
 					newRemaining := askQueue.GetRemainingGuaranteed()
 					if resources.EqualsOrEmpty(remaining, newRemaining) {
+						log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: removing victim did changing remaining guarantee",
+							zap.Any("victim", victim),
+							zap.Any("askQueue", askQueue),
+							zap.Any("queueSnapshot", queueSnapshot))
 						// remaining guaranteed amount in ask queue did not change, so preempting task won't help
 						queueSnapshot.AddAllocation(victim.GetAllocatedResource())
+
 					} else {
 						// remaining capacity changed, so we should keep this task
 						victims = append(victims, victim)
+						log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: found new victim",
+							zap.Any("victims", victims),
+							zap.Any("victim", victim))
+
 					}
 				} else {
+					log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: !queueSnapshot.IsAtOrAboveGuaranteedResource",
+						zap.Any("queueSnapshot", queueSnapshot))
 					// removing this allocation would have reduced queue below guaranteed limits, put it back
 					queueSnapshot.AddAllocation(victim.GetAllocatedResource())
 				}
+			} else {
+				log.Log(log.SchedPreemption).Info("PSC: BAD calculateAdditionalVictims: could NOT find allocationsByQueueSnap[qv.QueuePath];")
 			}
+		} else {
+			log.Log(log.SchedPreemption).Info("PSC: BAD calculateAdditionalVictims: could NOT find p.queueByAlloc[victim.GetAllocationKey()];")
+
 		}
 	}
 
