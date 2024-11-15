@@ -417,7 +417,10 @@ func (p *Preemptor) checkPreemptionPredicates(predicateChecks []*si.PreemptionPr
 					log.Log(log.SchedApplication).Info("PSC: checkPreemptionPredicates setting bestResult 2 to",
 						zap.Any("result.success", result.success),
 						zap.Any("result.nodeId", result.nodeID),
-						zap.Any("result.index", result.index))
+						zap.Any("result.index", result.index),
+						zap.Any("bestResult.success", bestResult.success),
+						zap.Any("bestResult.nodeId", bestResult.nodeID),
+						zap.Any("bestResult.index", bestResult.index))
 					bestResult = result
 				}
 			}
@@ -674,7 +677,13 @@ type predicateCheckResult struct {
 }
 
 func (pcr *predicateCheckResult) betterThan(other *predicateCheckResult, allocationsByNode map[string][]*Allocation) bool {
-	return pcr.getSolutionScore(allocationsByNode) < other.getSolutionScore(allocationsByNode)
+	log.Log(log.SchedPreemption).Info("PSC betterThan",
+		zap.Any("pcr", pcr),
+		zap.Any("other", other))
+	a := pcr.getSolutionScore(allocationsByNode)
+	b := other.getSolutionScore(allocationsByNode)
+	// return pcr.getSolutionScore(allocationsByNode) < other.getSolutionScore(allocationsByNode)
+	return a < b
 }
 
 func (pcr *predicateCheckResult) getSolutionScore(allocationsByNode map[string][]*Allocation) uint64 {
