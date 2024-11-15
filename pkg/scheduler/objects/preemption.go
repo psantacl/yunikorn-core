@@ -504,7 +504,14 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 		// check to see if removing this task will keep queue above guaranteed amount; if not, skip to the next one
 		if qv, ok := p.queueByAlloc[victim.GetAllocationKey()]; ok {
 			if queueSnapshot, ok2 := allocationsByQueueSnap[qv.QueuePath]; ok2 {
+
 				remaining := askQueue.GetRemainingGuaranteed()
+				log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: loop",
+					zap.Any("vicitmQueuePath", qv.QueuePath),
+					zap.Any("victimQueueSnapshot", queueSnapshot),
+					zap.Any("potentialVictim", victim),
+					zap.Any("askQueue", askQueue))
+
 				queueSnapshot.RemoveAllocation(victim.GetAllocatedResource())
 				// did removing this allocation still keep the queue over-allocated?
 				if queueSnapshot.IsAtOrAboveGuaranteedResource() {
@@ -529,6 +536,7 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 				} else {
 					log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: !queueSnapshot.IsAtOrAboveGuaranteedResource",
 						zap.Any("queueSnapshot", queueSnapshot))
+
 					// removing this allocation would have reduced queue below guaranteed limits, put it back
 					queueSnapshot.AddAllocation(victim.GetAllocatedResource())
 				}
@@ -697,11 +705,12 @@ type predicateCheckResult struct {
 }
 
 func (pcr *predicateCheckResult) betterThan(other *predicateCheckResult, allocationsByNode map[string][]*Allocation) bool {
-	log.Log(log.SchedPreemption).Info("PSC betterThan",
-		zap.Any("pcr", pcr),
-		zap.Any("other", other))
 	a := pcr.getSolutionScore(allocationsByNode)
 	b := other.getSolutionScore(allocationsByNode)
+	log.Log(log.SchedPreemption).Info("PSC betterThan",
+		zap.Any("pcr", a),
+		zap.Any("other", b))
+
 	// return pcr.getSolutionScore(allocationsByNode) < other.getSolutionScore(allocationsByNode)
 	return a < b
 }
