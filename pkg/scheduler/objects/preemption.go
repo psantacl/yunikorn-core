@@ -517,8 +517,13 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 				if queueSnapshot.IsAtOrAboveGuaranteedResource() {
 					// check to see if the shortfall on the queue has changed
 					newRemaining := askQueue.GetRemainingGuaranteed()
+					log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: remaining",
+						zap.Any("remaining", remaining),
+						zap.Any("newRemaining", newRemaining),
+						zap.Any("askQueue", askQueue))
+
 					if resources.EqualsOrEmpty(remaining, newRemaining) {
-						log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: removing victim did changing remaining guarantee",
+						log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: removing victim did NOT changing remaining guarantee",
 							zap.Any("victim", victim),
 							zap.Any("askQueue", askQueue),
 							zap.Any("queueSnapshot", queueSnapshot))
