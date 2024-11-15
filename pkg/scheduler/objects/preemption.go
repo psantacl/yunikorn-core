@@ -499,6 +499,8 @@ func (p *Preemptor) calculateAdditionalVictims(nodeVictims []*Allocation) ([]*Al
 	for _, victim := range potentialVictims {
 		// stop search if the ask fits into the queue
 		if askQueue.IsWithinGuaranteedResource() {
+			log.Log(log.SchedPreemption).Info("PSC: calculateAdditionalVictims: break",
+				zap.Any("askQueue.IsWithinGuaranteedResource", askQueue.IsWithinGuaranteedResource()))
 			break
 		}
 		// check to see if removing this task will keep queue above guaranteed amount; if not, skip to the next one
