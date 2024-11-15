@@ -869,11 +869,29 @@ func (qps *QueuePreemptionSnapshot) GetRemainingGuaranteed() *resources.Resource
 	if parentResult == nil {
 		parentResult = resources.NewResource()
 	}
+
 	guaranteed := qps.GetGuaranteedResource()
+	log.Log(log.SchedApplication).Info("PSC: GetRemainingGuaranteed",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("gauranteed", guaranteed))
 	maxResource := qps.GetMaxResource()
+	log.Log(log.SchedApplication).Info("PSC: GetRemainingGuaranteed",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("maxResource", maxResource))
 	absGuaranteed := resources.ComponentWiseMinPermissive(guaranteed, maxResource)
+	log.Log(log.SchedApplication).Info("PSC: GetRemainingGuaranteed",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("absGuaranteed", absGuaranteed))
 	used := resources.Sub(qps.AllocatedResource, qps.PreemptingResource)
+	log.Log(log.SchedApplication).Info("PSC: GetRemainingGuaranteed",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("used", used))
 	remaining := resources.Sub(absGuaranteed, used)
+	log.Log(log.SchedApplication).Info("PSC: GetRemainingGuaranteed",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("remaining", remaining),
+		zap.Any("ComponentWiseMin", resources.ComponentWiseMin(remaining, parentResult)))
+
 	return resources.ComponentWiseMin(remaining, parentResult)
 }
 
