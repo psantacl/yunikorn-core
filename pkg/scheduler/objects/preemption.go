@@ -843,6 +843,7 @@ func (qps *QueuePreemptionSnapshot) IsAtOrAboveGuaranteedResource() bool {
 }
 
 // IsWithinGuaranteedResource determines if this queue is within its current resource guarantees
+// bug is here.
 func (qps *QueuePreemptionSnapshot) IsWithinGuaranteedResource() bool {
 	if qps == nil {
 		return true
@@ -860,6 +861,13 @@ func (qps *QueuePreemptionSnapshot) IsWithinGuaranteedResource() bool {
 	maxResource := qps.GetMaxResource()
 	absGuaranteed := resources.ComponentWiseMinPermissive(guaranteed, maxResource)
 	used := resources.Sub(qps.AllocatedResource, qps.PreemptingResource)
+	log.Log(log.SchedApplication).Info("PSC: IsWithinGuaranteedResource",
+		zap.Any("QueuePath", qps.QueuePath),
+		zap.Any("maxResource", maxResource),
+		zap.Any("absGuaranteed", absGuaranteed),
+		zap.Any("used", used),
+		zap.Any("answer?", absGuaranteed.FitIn(used)))
+
 	return absGuaranteed.FitIn(used)
 }
 
