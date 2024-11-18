@@ -868,7 +868,8 @@ func (qps *QueuePreemptionSnapshot) IsWithinGuaranteedResource() bool {
 		zap.Any("used", used),
 		zap.Any("answer?", absGuaranteed.FitIn(used)),
 		zap.Any("AllocatedResources", qps.AllocatedResource),
-		zap.Any("PreemptionResource", qps.PreemptingResource))
+		zap.Any("PreemptionResource", qps.PreemptingResource),
+		zap.Any("guaranteed", qsp.GetGuaranteedResource()))
 
 	return absGuaranteed.FitIn(used)
 }
