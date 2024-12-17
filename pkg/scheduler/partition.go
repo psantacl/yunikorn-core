@@ -1248,12 +1248,12 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 	allocationID := release.GetAllocationID()
 	app := pc.getApplication(appID)
 
-	// log.Log(log.SchedPartition).Info("schaffer(removeAllocation)",
-	// 	zap.Any("release", release),
-	// 	zap.String("appID", appID),
-	// 	zap.String("allocationID", allocationID),
-	// 	zap.Stringer("terminationType", release.TerminationType))
-	log.Log(log.SchedPartition).Info("schaffer(removeAllocation)")
+	log.Log(log.SchedPartition).Info("schaffer(removeAllocation)",
+		zap.Any("release", release),
+		zap.String("appID", appID),
+		zap.String("allocationID", allocationID),
+		zap.Stringer("terminationType", release.TerminationType))
+	// log.Log(log.SchedPartition).Info("schaffer(removeAllocation)")
 
 	// no app nothing to do everything should already be clean
 	if app == nil {
