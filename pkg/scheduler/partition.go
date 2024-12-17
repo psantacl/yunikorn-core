@@ -1248,11 +1248,12 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 	allocationID := release.GetAllocationID()
 	app := pc.getApplication(appID)
 
-	log.Log(log.SchedPartition).Info("schaffer(removeAllocation)",
-		zap.Any("release", release),
-		zap.String("appID", appID),
-		zap.String("allocationID", allocationID),
-		zap.Stringer("terminationType", release.TerminationType))
+	// log.Log(log.SchedPartition).Info("schaffer(removeAllocation)",
+	// 	zap.Any("release", release),
+	// 	zap.String("appID", appID),
+	// 	zap.String("allocationID", allocationID),
+	// 	zap.Stringer("terminationType", release.TerminationType))
+	log.Log(log.SchedPartition).Info("schaffer(removeAllocation)")
 
 	// no app nothing to do everything should already be clean
 	if app == nil {
@@ -1312,8 +1313,10 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 	total := resources.NewResource()
 	totalPreempting := resources.NewResource()
 	for _, alloc := range released {
-		log.Log(log.SchedPartition).Info("schaffer(removeAllocation) about to process released",
-			zap.Any("alloc", alloc))
+		// log.Log(log.SchedPartition).Info("schaffer(removeAllocation) about to process released",
+		// 	zap.Any("alloc", alloc))
+		log.Log(log.SchedPartition).Info("schaffer(removeAllocation) about to process released")
+
 		node := pc.GetNode(alloc.GetNodeID())
 		if node == nil {
 			//NB> we do NOT see this in the logs
@@ -1360,9 +1363,9 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 				zap.String("allocationID", alloc.GetAllocationID()))
 		}
 		if alloc.IsPreempted() {
-			log.Log(log.SchedPartition).Info("schaffer(removeAllocation) removed preempted allocation",
-				zap.Any("alloc", alloc))
-
+			// log.Log(log.SchedPartition).Info("schaffer(removeAllocation) removed preempted allocation",
+			// 	zap.Any("alloc", alloc))
+			log.Log(log.SchedPartition).Info("schaffer(removeAllocation) removed preempted allocation")
 			totalPreempting.AddTo(alloc.GetAllocatedResource())
 		}
 	}
