@@ -1316,7 +1316,8 @@ func (pc *PartitionContext) removeAllocation(release *si.AllocationRelease) ([]*
 		// log.Log(log.SchedPartition).Info("schaffer(removeAllocation) about to process released",
 		// 	zap.Any("alloc", alloc))
 		log.Log(log.SchedPartition).Info("schaffer(removeAllocation) about to process released",
-			zap.Any("alloc", alloc))
+			zap.Any("alloc", alloc),
+			zap.Any("alloc.tags", alloc.GetTagsClone()))
 
 		node := pc.GetNode(alloc.GetNodeID())
 		if node == nil {
