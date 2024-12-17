@@ -745,7 +745,7 @@ func (cc *ClusterContext) handleRMUpdateAllocationEvent(event *rmevent.RMUpdateA
 	if request.Releases != nil {
 		// log.Log(log.SchedContext).Info("schaffer(handleRMUpdateAllocationEvent) processing releases",
 		// 	zap.Any("releases", request.Releases))
-		log.Log(log.SchedContext).Info("schaffer(handleRMUpdateAllocationEvent) processing releases")
+		log.Log(log.SchedContext).Info("schaffer(handleRMUpdateAllocationEvent) processing releases", zap.Any("AllocationsToRelease", request.Releases.AllocationsToRelease))
 
 		if len(request.Releases.AllocationAsksToRelease) > 0 {
 			cc.processAskReleases(request.Releases.AllocationAsksToRelease)
