@@ -299,9 +299,6 @@ func (rmp *RMProxy) UpdateAllocation(request *si.AllocationRequest) error {
 	if rmp.GetResourceManagerCallback(request.RmID) == nil {
 		return fmt.Errorf("received AllocationRequest, but RmID=\"%s\" not registered", request.RmID)
 	}
-	log.Log(log.RMProxy).Info("schaffer(UpdateAllocation)",
-		zap.Any("request", request))
-	// log.Log(log.RMProxy).Info("schaffer(UpdateAllocation)")
 
 	// Update allocations
 	for _, alloc := range request.Allocations {
@@ -315,6 +312,10 @@ func (rmp *RMProxy) UpdateAllocation(request *si.AllocationRequest) error {
 
 	// Update releases
 	if request.Releases != nil {
+		log.Log(log.RMProxy).Info("schaffer(UpdateAllocation)",
+			zap.Any("request", request),
+			zap.Any("releases", request.Releases))
+
 		for _, rel := range request.Releases.AllocationsToRelease {
 			rel.PartitionName = common.GetNormalizedPartitionName(rel.PartitionName, request.RmID)
 		}
