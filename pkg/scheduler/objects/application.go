@@ -1035,9 +1035,9 @@ func (sa *Application) tryAllocate(headRoom *resources.Resource, allowPreemption
 				fullIterator := fullNodeIterator()
 				if fullIterator != nil {
 					if alloc, ok := sa.tryPreemption(headRoom, preemptionDelay, request, fullIterator, true); ok {
-						// log.Log(log.SchedApplication).Info("schaffer(tryAllocate) about to preempt",
-						// 	zap.Any("alloc", alloc))
-						log.Log(log.SchedApplication).Info("schaffer(tryAllocate) about to preempt")
+						log.Log(log.SchedApplication).Info("schaffer(tryAllocate) about to preempt",
+							zap.Any("alloc", alloc))
+						// log.Log(log.SchedApplication).Info("schaffer(tryAllocate) about to preempt")
 
 						// preemption occurred, and possibly reservation
 						return alloc
